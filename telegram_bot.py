@@ -27,6 +27,21 @@ def get_google_answer(query):
 
 # Function to greet based on the time of day
 def get_greeting():
+    current_hour = datetime.datetime.now().hour  # Get the current hour
+
+    if 5 <= current_hour < 12:
+        return "Good morning Harini papa!"
+    elif 12 <= current_hour < 17:
+        return "Good afternoon Harini papa!"
+    elif 17 <= current_hour < 21:
+        return "Good evening Harini papa!"
+    else:
+        return "Good night Harini papa!"
+
+
+
+
+def get_greeting():
     current_time = datetime.datetime.now().hour
     if current_time < 12:
         return "Good morning Harini papa!"
