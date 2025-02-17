@@ -17,11 +17,18 @@ def get_google_answer(query):
     if 'items' in data:
         top_result = data['items'][0]  # Get the top result
         title = top_result['title']
-        snippet = top_result['snippet']  # Concise snippet from the result
+        snippet = top_result.get('snippet', 'No description available')  # Handling missing snippet
         link = top_result['link']
         return f"**{title}**\n\n{snippet}\n\nRead more: {link}"
     else:
-        return "Sorry, I couldn't find any relevant information, Harini papa!!!."
+        return "Sorry, I couldn't find any relevant information ,Harini papa!."
+
+
+
+
+
+
+
 
 # Function to greet based on the time of day
 def get_greeting():
