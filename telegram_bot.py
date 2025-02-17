@@ -41,14 +41,7 @@ def get_greeting():
 
 
 
-def get_greeting():
-    current_time = datetime.datetime.now().hour
-    if current_time < 12:
-        return "Good morning Harini papa!"
-    elif current_time < 18:
-        return "Good afternoon Harini papa!"
-    else:
-        return "Good evening Harini papa!"
+
 
 # Command handler to start the bot and greet
 async def start(update: Update, context):
