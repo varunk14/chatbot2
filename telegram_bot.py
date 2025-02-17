@@ -25,28 +25,13 @@ def get_google_answer(query):
         return "Sorry, I couldn't find any relevant information, Harini papa!"
 
 
-
-# Function to get a random compliment from the API
-def get_compliment():
-    try:
-        response = requests.get("https://complimentr.com/api")
-        data = response.json()
-        return data["compliment"].capitalize()
-    except Exception as e:
-        return "Good morning, Harini! You are truly amazing! 💖"
-
-# Function to send a morning message with a compliment
-def send_morning_message(update: Update, context):
-    compliment = get_compliment()
-    message = f"Good morning, Harini! ☀️ {compliment}"
-    update.message.reply_text(message)
-
-
-
 # Function to greet based on the time of day
 def get_greeting():
     current_hour = datetime.datetime.now().hour  # Get the current hour
-    if 12 <= current_hour < 17:
+
+    if 5 <= current_hour < 12:
+        return "Good morning Harini papa!"
+    elif 12 <= current_hour < 17:
         return "Good afternoon Harini papa!"
     elif 17 <= current_hour < 21:
         return "Good evening Harini papa!"
