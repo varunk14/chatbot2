@@ -17,7 +17,7 @@ def get_google_answer(query):
     if 'items' in data:
         top_result = data['items'][0]  # Get the top result
         title = top_result.get('title', 'No title available')  # Use default if missing
-        snippet = top_result.get('snippet', 'No description available')  # Avoid KeyError
+        snippet = top_result.get('snippet', 'No description available, Harini papa')  # Avoid KeyError
         link = top_result.get('link', '')
 
         return f"**{title}**\n\n{snippet}\n\nRead more: {link}" if link else f"**{title}**\n\n{snippet}"
