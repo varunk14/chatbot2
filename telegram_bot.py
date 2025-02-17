@@ -64,6 +64,17 @@ def get_music_recommendation(language):
     else:
         return "Sorry, I couldn't find any music recommendations right now Harini papa."
 
+        
+    # Function to handle music recommendation requests
+def recommend_music(update: Update, context):
+    # Fetch language preference from the user or set it to default
+    language = update.message.text.split(" ")[1] if len(update.message.text.split(" ")) > 1 else "english"
+    
+    # Get music recommendations
+    recommendations = get_music_recommendation(language)
+    update.message.reply_text(recommendations)
+    
+
 
 # Command handler to start the bot and greet
 async def start(update: Update, context):
