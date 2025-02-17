@@ -43,6 +43,28 @@ def get_greeting():
 
 
 
+# Function to fetch music recommendations based on language
+def get_music_recommendation(language):
+    # Deezer API URL to get tracks based on genre/language
+    api_url = f"https://api.deezer.com/search?q={language}&limit=5"  # Modify to filter by language
+    
+    # Get data from Deezer API
+    response = requests.get(api_url)
+    data = response.json()
+
+    # Fetch top tracks
+    if 'data' in data:
+        music_list = []
+        for track in data['data']:
+            track_name = track['title']
+            artist = track['artist']['name']
+            album = track['album']['title']
+            music_list.append(f"Song: {track_name}\nArtist: {artist}\nAlbum: {album}\n")
+        return "\n\n".join(music_list)
+    else:
+        return "Sorry, I couldn't find any music recommendations right now Harini papa."
+
+
 # Command handler to start the bot and greet
 async def start(update: Update, context):
     greeting = get_greeting()
