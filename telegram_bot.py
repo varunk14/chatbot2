@@ -1,4 +1,5 @@
 import datetime
+import pytz
 import requests
 from telegram import Update
 from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
@@ -26,17 +27,22 @@ def get_google_answer(query):
 
 
 # Function to greet based on the time of day
-def get_greeting():
-    current_hour = datetime.datetime.now().hour  # Get the current hour
 
-    if 5 <= current_hour < 12:
+  # Import the pytz library
+
+# Function to get a time-based greeting
+def get_greeting():
+    # Set timezone (change "Asia/Kolkata" if needed)
+    tz = pytz.timezone("Asia/Kolkata")  # Indian Standard Time (IST)
+    current_time = datetime.datetime.now(tz).hour  # Get local hour
+
+    if current_time < 12:
         return "Good morning Harini papa!"
-    elif 12 <= current_hour < 17:
+    elif current_time < 17:
         return "Good afternoon Harini papa!"
-    elif 17 <= current_hour < 21:
-        return "Good evening Harini papa!"
     else:
-        return "Good night Harini papa!"
+        return "Good evening Harini papa!"
+
 
 
 
