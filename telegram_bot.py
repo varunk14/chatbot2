@@ -65,34 +65,54 @@ def get_greeting():
 
 # Function to fetch music recommendations based on language
 def get_music_recommendation(language):
-    # Deezer API URL to get tracks based on genre/language
-    api_url = f"https://api.deezer.com/search?q={language}&limit=5"  # Modify to filter by language
+    import requests
+
+# Function to fetch music recommendations based on language or mood
+def get_music_recommendation(language=None, mood=None):
+    base_url = "https://saavn.dev/api/songs?query="  # Unofficial JioSaavn API
     
-    # Get data from Deezer API
+    # Choose query based on input type
+    if language:
+        query = f"best {language} songs"
+    elif mood:
+        query = f"{mood} mood songs"
+    else:
+        return "Please specify a language or mood for song recommendations, Harini papa."
+    
+    api_url = base_url + query.replace(" ", "%20")
+    
+    # Get data from JioSaavn API
     response = requests.get(api_url)
     data = response.json()
-
+    
     # Fetch top tracks
-    if 'data' in data:
+    if data.get("data"):
         music_list = []
-        for track in data['data']:
-            track_name = track['title']
-            artist = track['artist']['name']
-            album = track['album']['title']
-            music_list.append(f"Song: {track_name}\nArtist: {artist}\nAlbum: {album}\n")
+        for song in data["data"][:5]:  # Get top 5 songs
+            track_name = song['title']
+            artist = song['primaryArtists']
+            play_url = song['media_url']
+            music_list.append(f"🎵 *{track_name}* - {artist}\n[Play Now]({play_url})\n")
+        
         return "\n\n".join(music_list)
     else:
-        return "Sorry, I couldn't find any music recommendations right now Harini papa."
+        return "Sorry, I couldn't find any music recommendations right now, Harini papa."
+
 
         
     # Function to handle music recommendation requests
 def recommend_music(update: Update, context):
-    # Fetch language preference from the user or set it to default
-    language = update.message.text.split(" ")[1] if len(update.message.text.split(" ")) > 1 else "english"
-    
-    # Get music recommendations
+    # Get language from the user's message or default to English
+    text = update.message.text.split(" ")
+    language = text[1] if len(text) > 1 else "english"
+
+    # Fetch music recommendations
     recommendations = get_music_recommendation(language)
+
+    # Send response to user
     update.message.reply_text(recommendations)
+
+
     
 
 
