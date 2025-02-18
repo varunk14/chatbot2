@@ -19,11 +19,11 @@ OPENROUTER_API_KEY = "sk-or-v1-68d8739fab13c78fb70e0e8f943d55ee91701142cf4a8ddc6
 def get_ai_response(query):
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
-        "Authorization": OPENROUTER_API_KEY,  # Replace with your actual API key
+        "Authorization": "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",  # Ensure API key is correct
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "deepseek-chat",  # Try "gpt-3.5-turbo" if this model fails
+        "model": "mistral",  # Try changing to "gpt-3.5-turbo" if needed
         "messages": [
             {"role": "system", "content": "You are a helpful AI assistant."},
             {"role": "user", "content": query}
@@ -32,14 +32,17 @@ def get_ai_response(query):
     }
 
     response = requests.post(url, headers=headers, json=payload)
-    data = response.json()
+    
+    # Log the full API response
+    logging.info(f"API Response: {response.text}")
 
-    print("API Response:", data)  # Debugging step
+    try:
+        data = response.json()
+        return data["choices"][0]["message"]["content"] if "choices" in data else "Sorry, I couldn't fetch a response. Please try again."
+    except Exception as e:
+        logging.error(f"Error parsing API response: {e}")
+        return "Sorry, I couldn't fetch a response. Please try again."
 
-    if "choices" in data and len(data["choices"]) > 0:
-        return data["choices"][0]["message"]["content"]
-    else:
-        return "Sorry, I couldn't fetch a response. Please try again later."
 
 
 # Function to get greeting based on time
