@@ -20,6 +20,7 @@ async def error_handler(update: Update, context: CallbackContext):
 TELEGRAM_TOKEN = '7874095227:AAH518vR66DVg6gg3MTVoiCXbUcvActw6t0'
 GOOGLE_API_KEY = 'AIzaSyAXtQ4ryCWr5fc-ly_z911uhhzpPAA0c6k'
 GOOGLE_CX = 'a4bf1413548474c46'
+
 # Function to fetch concise information from Google Search
 def get_google_answer(query):
     search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={GOOGLE_CX}"
@@ -36,6 +37,7 @@ def get_google_answer(query):
     else:
         return "Sorry, I couldn't find any relevant information, Harini papa."
 
+
 # Function to greet based on the time of day
 def get_greeting():
     tz = pytz.timezone("Asia/Kolkata")  # Indian Standard Time (IST)
@@ -48,7 +50,8 @@ def get_greeting():
     else:
         return "Good evening Harini papa!"
 
-# Function to fetch music recommendations
+
+# Function to fetch music recommendations based on language or mood
 def get_music_recommendation(language=None, mood=None):
     base_url = "https://saavn.dev/api/songs?query="  # Unofficial JioSaavn API
     
@@ -81,11 +84,41 @@ async def start(update: Update, context: CallbackContext):
     greeting = get_greeting()
     await update.message.reply_text(f"{greeting} How can I assist you today?")
 
-# Function to respond to questions
+# Updated respond function with mood and language handling
 async def respond(update: Update, context: CallbackContext):
-    question = update.message.text
-    answer = get_google_answer(question)
-    log_entry = f"User: {update.message.from_user.id} - {question}\nBot: {answer}\n\n"
+    question = update.message.text.lower()
+    print(f"User asked: {question}")  # This logs the question in the terminal
+
+    if "song" in question or "music" in question:
+        language = None
+        mood = None
+
+        if "hindi" in question:
+            language = "hindi"
+        elif "english" in question:
+            language = "english"
+        elif "telugu" in question:
+            language = "telugu"
+        elif "tamil" in question:
+            language = "tamil"
+        
+        if "happy" in question:
+            mood = "happy"
+        elif "sad" in question:
+            mood = "sad"
+        elif "party" in question:
+            mood = "party"
+        elif "chill" in question:
+            mood = "chill"
+        elif "romantic" in question:
+            mood = "romantic"
+        
+        answer = get_music_recommendation(language, mood)
+    else:
+        answer = get_google_answer(question)
+
+    print(f"Bot answered: {answer}")  # This logs the answer in the terminal
+    log_entry = f"User: {question}\nBot: {answer}\n\n"
 
     # Save logs to a text file
     with open("chat_log.txt", "a") as log_file:
