@@ -59,6 +59,19 @@ async def start(update: Update, context: CallbackContext):
     greeting = get_greeting()
     await update.message.reply_text(f"{greeting} How can I assist you today?")
 
+
+
+async def respond(update: Update, context: CallbackContext):
+    question = update.message.text
+    answer = get_ai_response(question)  # Get AI response
+
+    # Log user query and bot response
+    logging.info(f"User: {question}")
+    logging.info(f"Bot: {answer}")
+
+    await update.message.reply_text(answer)
+
+
 # Function to handle user messages and reply with AI response
 async def respond(update: Update, context: CallbackContext):
     question = update.message.text
