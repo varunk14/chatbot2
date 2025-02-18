@@ -69,6 +69,10 @@ def get_music_recommendation(language=None, mood=None):
     
     # Get data from the API
     response = requests.get(api_url)
+    
+    # Debug: print the raw response to check what is returned by the API
+    print("API Response:", response.text)
+    
     data = response.json()
     
     # Check if there are valid data in response
@@ -85,11 +89,6 @@ def get_music_recommendation(language=None, mood=None):
         return f"Sorry, I couldn't find any music recommendations right now for {language or mood}, Harini papa."
 
 
-
-
-
-
-        
 
 # Command handler to start the bot and greet
 async def start(update: Update, context: CallbackContext):
