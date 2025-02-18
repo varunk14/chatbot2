@@ -55,18 +55,23 @@ def get_greeting():
 def get_music_recommendation(language=None, mood=None):
     base_url = "https://saavn.dev/api/songs?query="  # Unofficial JioSaavn API
     
+    # If a language is provided, form the query
     if language:
         query = f"best {language} songs"
+    # If mood is provided, form the query based on mood
     elif mood:
         query = f"{mood} mood songs"
     else:
         return "Please specify a language or mood for song recommendations, Harini papa."
-
+    
+    # Replace spaces in query with %20 for URL encoding
     api_url = base_url + query.replace(" ", "%20")
     
+    # Get data from the API
     response = requests.get(api_url)
     data = response.json()
     
+    # Check if there are valid data in response
     if data.get("data"):
         music_list = []
         for song in data["data"][:5]:  # Get top 5 songs
@@ -77,7 +82,14 @@ def get_music_recommendation(language=None, mood=None):
         
         return "\n\n".join(music_list)
     else:
-        return "Sorry, I couldn't find any music recommendations right now, Harini papa."
+        return f"Sorry, I couldn't find any music recommendations right now for {language or mood}, Harini papa."
+
+
+
+
+
+
+        
 
 # Command handler to start the bot and greet
 async def start(update: Update, context: CallbackContext):
