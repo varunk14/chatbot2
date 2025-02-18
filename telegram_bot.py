@@ -23,7 +23,7 @@ def get_ai_response(query):
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "mistral",  # Try "gpt-3.5-turbo" if this model fails
+        "model": "deepseek-chat",  # Try "gpt-3.5-turbo" if this model fails
         "messages": [
             {"role": "system", "content": "You are a helpful AI assistant."},
             {"role": "user", "content": query}
