@@ -2,7 +2,21 @@ import datetime
 import pytz
 import requests
 from telegram import Update
-from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
+import logging
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackContext
+
+# Enable logging to see errors clearly
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+# Function to log errors
+async def error_handler(update: Update, context: CallbackContext):
+    logger.error(f"Update {update} caused error {context.error}")
+
+
 
 # Replace with your actual tokens
 TELEGRAM_TOKEN = '7874095227:AAH518vR66DVg6gg3MTVoiCXbUcvActw6t0'
@@ -107,6 +121,8 @@ async def respond(update: Update, context):
 # Main function to start the bot
 def main():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+    app.add_error_handler(error_handler)
+
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, respond))
