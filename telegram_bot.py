@@ -10,30 +10,27 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Telegram Bot Token
-<<<<<<< HEAD
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # OpenRouter API Key (Replace with your real key)
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-=======
-TELEGRAM_TOKEN = "7"
+
 
 # OpenRouter API Key (Replace with your real key)
-OPENROUTER_API_KEY = "s"
->>>>>>> f1f5b167270b9c302c451b338c7c81355ad8b7b1
+
 
 # Function to generate AI responses using OpenRouter
 def get_ai_response(query):
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
-<<<<<<< HEAD
+
         "Authorization": f"sk-or-{OPENROUTER_API_KEY}"
 
           # Ensure API key is correct
-=======
-        "Authorization": "6",  # Ensure API key is correct
->>>>>>> f1f5b167270b9c302c451b338c7c81355ad8b7b1
+
+        
         "Content-Type": "application/json"
     }
     payload = {
