@@ -11,50 +11,24 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Telegram Bot Token
-<<<<<<< HEAD
-=======
 
->>>>>>> e0bb80381a772774e25313efe971a387b0c7d144
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # OpenRouter API Key (Replace with your real key)
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
-<<<<<<< HEAD
-=======
-
-
-# OpenRouter API Key (Replace with your real key)
-
->>>>>>> e0bb80381a772774e25313efe971a387b0c7d144
-
-# Function to generate AI responses using OpenRouter
 def get_ai_response(query):
     url = "https://api.deepseek.com/v1/chat/completions"
     headers = {
-<<<<<<< HEAD
-        "Authorization": f"sk-or-{OPENROUTER_API_KEY}"
-
-          # Ensure API key is correct
-=======
-
-        "Authorization": f"sk-or-{OPENROUTER_API_KEY}",
-
-          # Ensure API key is correct
-
-        
->>>>>>> e0bb80381a772774e25313efe971a387b0c7d144
+        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "mistral",  # Try changing to "gpt-3.5-turbo" if needed
-        "messages": [
-            {"role": "system", "content": "You are a helpful AI assistant."},
-            {"role": "user", "content": query}
-        ],
+        "model": "deepseek-chat",
+        "messages": [{"role": "system", "content": "You are a helpful AI assistant."},
+                     {"role": "user", "content": query}],
         "temperature": 0.7
     }
-
     response = requests.post(url, headers=headers, json=payload)
     
     # Log the full API response
