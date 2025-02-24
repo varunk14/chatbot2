@@ -26,7 +26,7 @@ def get_ai_response(query):
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
 
-        "Authorization": f"sk-or-{OPENROUTER_API_KEY}"
+        "Authorization": f"sk-or-{OPENROUTER_API_KEY}",
 
           # Ensure API key is correct
 
