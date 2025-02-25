@@ -96,4 +96,4 @@ if __name__ == "__main__":
     asyncio.run(set_telegram_webhook())
 
     # Run Flask
-    serve(app, host="0.0.0.0", port=8000)
+    serve(app, host="0.0.0.0", port=8080)
