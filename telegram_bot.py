@@ -80,20 +80,19 @@ telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, respond
 # Webhook route for Telegram
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    update = Update.de_json(request.get_json(), telegram_app.bot)
+    update = Update.de_json(request.get_json(), telegram_app)
     asyncio.create_task(telegram_app.process_update(update))  # Use async task
     return "OK", 200
 
 # Set Telegram Webhook
 async def set_telegram_webhook():
     await telegram_app.bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")
-    logging.info(f"Webhook set at: {WEBHOOK_URL}/webhook")
+    logger.info(f"Webhook set at: {WEBHOOK_URL}/webhook")
 
 # Start Flask app
 if __name__ == "__main__":
-    # Run the async webhook setup in an event loop
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(set_telegram_webhook())
+    # Run the async webhook setup
+    asyncio.run(set_telegram_webhook())
 
     # Run Flask
     app.run(host="0.0.0.0", port=8000)
