@@ -1,15 +1,17 @@
 import datetime
 import requests
-from telegram import Bot, Update
+from telegram import Update
 from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
 import os
+import pytz  # Import for handling time zones
 
-
+# Get environment variables
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_CX = os.getenv("GOOGLE_CX")
 
-
+# Set timezone to India (IST)
+india_tz = pytz.timezone("Asia/Kolkata")
 
 # Function to fetch concise information from Google Search
 def get_google_answer(query):
@@ -26,22 +28,26 @@ def get_google_answer(query):
     else:
         return "Sorry, I couldn't find any relevant information, Harini papa!!!."
 
-# Function to greet based on the time of day
+# Function to greet based on the **correct** time zone
 def get_greeting():
-    current_time = datetime.datetime.now().hour
-    if current_time < 12:
-        return "Good morning Harini papa!"
-    elif current_time < 18:
-        return "Good afternoon Harini papa!"
+    now = datetime.datetime.now(india_tz)  # Use IST time
+    hour = now.hour
+
+    if 5 <= hour < 12:
+        return "Good morning Harini papa! ☀️"
+    elif 12 <= hour < 17:
+        return "Good afternoon Harini papa! 🌞"
+    elif 17 <= hour < 21:
+        return "Good evening Harini papa! 🌆"
     else:
-        return "Good evening Harini papa!"
+        return "Good night Harini papa! 🌙"
 
 # Command handler to start the bot and greet
 async def start(update: Update, context):
     greeting = get_greeting()
-    await update.message.reply_text(f"{greeting} How can I assist you today, Harini papa?")
+    await update.message.reply_text(f"{greeting} How can I assist you today? 😊")
 
-# Function to respond to questions
+# Function to respond to user queries
 async def respond(update: Update, context):
     question = update.message.text
     answer = get_google_answer(question)
