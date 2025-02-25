@@ -4,6 +4,7 @@ import pytz
 import requests
 import logging
 import asyncio
+from waitress import serve
 from flask import Flask, request
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, filters
@@ -95,4 +96,4 @@ if __name__ == "__main__":
     asyncio.run(set_telegram_webhook())
 
     # Run Flask
-    app.run(host="0.0.0.0", port=8000)
+    serve(app, host="0.0.0.0", port=8000)
