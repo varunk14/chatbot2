@@ -3,6 +3,7 @@ import os
 import pytz
 import requests
 import logging
+import asyncio
 from flask import Flask, request
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, filters
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Get environment variables
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Add this in Railway env
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Set this in Railway env
 
 # Flask app for webhook
 app = Flask(__name__)
@@ -77,13 +78,22 @@ telegram_app.add_handler(CommandHandler("start", start))
 telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, respond))
 
 # Webhook route for Telegram
-@app.route(f"/webhook", methods=["POST"])
+@app.route("/webhook", methods=["POST"])
 def webhook():
     update = Update.de_json(request.get_json(), telegram_app.bot)
-    telegram_app.update_queue.put(update)
+    asyncio.create_task(telegram_app.process_update(update))  # Use async task
     return "OK", 200
+
+# Set Telegram Webhook
+async def set_telegram_webhook():
+    await telegram_app.bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")
+    logging.info(f"Webhook set at: {WEBHOOK_URL}/webhook")
 
 # Start Flask app
 if __name__ == "__main__":
-    telegram_app.bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")  # Set webhook
+    # Run the async webhook setup in an event loop
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(set_telegram_webhook())
+
+    # Run Flask
     app.run(host="0.0.0.0", port=8000)
