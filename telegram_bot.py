@@ -61,7 +61,19 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, respond))
 
     print("Bot is running...")
-    app.run_polling()
+    WEBHOOK_URL = "https://chatbot2-production-5e50.up.railway.app/webhook"
+
+async def webhook_update(update: Update, context):
+    await application.update_queue.put(update)
+
+app.run_webhook(
+    listen="0.0.0.0",
+    port=int(os.getenv("PORT", 8443)),
+    url_path="webhook",
+    webhook_url=WEBHOOK_URL
+)
+
+    
 
 if __name__ == '__main__':
     main()
