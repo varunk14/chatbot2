@@ -1,99 +1,100 @@
-import datetime
 import os
-import pytz
 import requests
-import logging
-import asyncio
-from waitress import serve
+import datetime
 from flask import Flask, request
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
-# Enable logging
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Get environment variables
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # Set this in Railway env
-
-# Flask app for webhook
+# Initialize Flask for Railway
 app = Flask(__name__)
 
-# Function to get AI response
-def get_ai_response(query):
-    url = "https://api.deepseek.com/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "deepseek-chat",
-        "messages": [{"role": "system", "content": "You are a helpful AI assistant."},
-                     {"role": "user", "content": query}],
-        "temperature": 0.7
-    }
-    response = requests.post(url, headers=headers, json=payload)
-    
-    # Log API response
-    logging.info(f"API Response: {response.text}")
+# Telegram Bot Token (Set this in Railway environment variables)
+TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-    try:
-        data = response.json()
-        return data["choices"][0]["message"]["content"] if "choices" in data else "Sorry, I couldn't fetch a response. Please try again."
-    except Exception as e:
-        logging.error(f"Error parsing API response: {e}")
-        return "Sorry, I couldn't fetch a response. Please try again."
+# Initialize Telegram Bot Application
+app_telegram = Application.builder().token(TOKEN).build()
 
-# Function to get greeting
+# Function to get correct greeting based on time
 def get_greeting():
-    tz = pytz.timezone("Asia/Kolkata")
-    current_hour = datetime.datetime.now(tz).hour
-
-    if current_hour < 12:
-        return "Good morning Harini papa!"
-    elif current_hour < 17:
-        return "Good afternoon Harini papa!"
+    hour = datetime.datetime.now().hour
+    if 5 <= hour < 12:
+        return "Good morning, Harini papa! 🌞"
+    elif 12 <= hour < 18:
+        return "Good afternoon, Harini papa! ☀️"
     else:
-        return "Good evening Harini papa!"
+        return "Good evening, Harini papa! 🌙"
 
-# Telegram handlers
-async def start(update: Update, context: CallbackContext):
-    greeting = get_greeting()
-    await update.message.reply_text(f"{greeting} How can I assist you today?")
+# Function to get an answer from Google (or use another API)
+def get_google_answer(question):
+    search_url = "https://api.duckduckgo.com/?q=" + question + "&format=json"
+    response = requests.get(search_url).json()
+    
+    if "AbstractText" in response and response["AbstractText"]:
+        return response["AbstractText"]
+    return "Sorry Harini, I couldn't find an answer for that."
 
-async def respond(update: Update, context: CallbackContext):
+# Function to get music recommendations based on language
+def get_music_recommendation(language):
+    api_url = f"https://api.deezer.com/search?q={language}&limit=5"
+    response = requests.get(api_url).json()
+
+    if 'data' in response:
+        music_list = []
+        for track in response['data']:
+            track_name = track['title']
+            artist = track['artist']['name']
+            music_list.append(f"🎵 {track_name} - {artist}")
+        return "\n".join(music_list)
+    else:
+        return "Sorry, Harini, I couldn't find any songs right now."
+
+# Command handler for /start
+async def start(update: Update, context):
+    await update.message.reply_text(get_greeting() + "\nHow can I help you today?")
+
+# Respond to messages
+async def respond(update: Update, context):
     question = update.message.text
-    answer = get_ai_response(question)
-
-    # Log user queries
-    logging.info(f"User: {question}")
-    logging.info(f"Bot: {answer}")
-
+    answer = get_google_answer(question)
     await update.message.reply_text(answer)
 
-# Telegram bot setup
-telegram_app = Application.builder().token(TELEGRAM_TOKEN).build()
-telegram_app.add_handler(CommandHandler("start", start))
-telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, respond))
+# Music recommendation command
+async def recommend_music(update: Update, context):
+    language = "english"  # Default to English
+    if context.args:
+        language = context.args[0].lower()
+    
+    recommendations = get_music_recommendation(language)
+    await update.message.reply_text(recommendations)
 
-# Webhook route for Telegram
-@app.route("/webhook", methods=["POST"])
+# Error handling
+async def error(update: Update, context):
+    print(f"Error: {context.error}")
+
+# Add Telegram Handlers
+app_telegram.add_handler(CommandHandler("start", start))
+app_telegram.add_handler(CommandHandler("music", recommend_music))
+app_telegram.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, respond))
+app_telegram.add_error_handler(error)
+
+# Flask route for webhook
+@app.route('/webhook', methods=['POST'])
 def webhook():
-    update = Update.de_json(request.get_json(), telegram_app)
-    asyncio.create_task(telegram_app.process_update(update))  # Use async task
+    update = Update.de_json(request.get_json(), app_telegram.bot)
+    app_telegram.process_update(update)
     return "OK", 200
 
 # Set Telegram Webhook
-async def set_telegram_webhook():
-    await telegram_app.bot.set_webhook(url=f"{WEBHOOK_URL}/webhook")
-    logger.info(f"Webhook set at: {WEBHOOK_URL}/webhook")
+@app.route('/set_webhook', methods=['GET'])
+def set_webhook():
+    WEBHOOK_URL = "https://your-railway-app.up.railway.app/webhook"
+    app_telegram.bot.set_webhook(url=WEBHOOK_URL)
+    return f"Webhook set to {WEBHOOK_URL}", 200
 
-# Start Flask app
+# Railway keeps the app alive
+@app.route('/')
+def home():
+    return "Telegram Bot is running on Railway!"
+
 if __name__ == "__main__":
-    # Run the async webhook setup
-    asyncio.run(set_telegram_webhook())
-
-    # Run Flask
-    serve(app, host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=5000)
